@@ -33,8 +33,14 @@ class ClockIn(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
+        requests.adapters.DEFAULT_RETRIES = 5
+        
         self.sess = requests.Session()
 #         self.ocr = ddddocr.DdddOcr()
+
+        self.sess.proxies = {"socks":"10.99.111.202:7890"}
+        self.sess.keep_alive = False
 
     def login(self):
         """Login to ZJU platform"""
