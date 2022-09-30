@@ -62,7 +62,8 @@ class ClockIn(object):
 
         # check if login successfully
         if '统一身份认证' in res.content.decode():
-            raise LoginError('登录失败，请核实账号密码重新登录')
+            # raise LoginError('登录失败，请核实账号密码重新登录')
+            raise LoginError('Login Error')
         return self.sess
 
     def post(self):
@@ -93,7 +94,8 @@ class ClockIn(object):
             if len(old_infos) != 0:
                 old_info = json.loads(old_infos[0])
             else:
-                raise RegexMatchError("未发现缓存信息，请先至少手动成功打卡一次再运行脚本")
+                # raise RegexMatchError("未发现缓存信息，请先至少手动成功打卡一次再运行脚本")
+                raise RegexMatchError("Clock in by yourself before running this script")
 
             new_info_tmp = json.loads(re.findall(r'def = ({[^\n]+})', html)[0])
             new_id = new_info_tmp['id']
@@ -171,44 +173,56 @@ def main(username, password):
     """
     print("\n[Time] %s" %
           datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    print("🚌 打卡任务启动")
+    # print("🚌 打卡任务启动")
+    print("The task start!")
 
     dk = ClockIn(username, password)
 
-    print("登录到浙大统一身份认证平台...")
+    # print("登录到浙大统一身份认证平台...")
+    print("Login your account......")
     try:
         dk.login()
-        print("已登录到浙大统一身份认证平台")
+        # print("已登录到浙大统一身份认证平台")
+        print("Login successfully!")
     except Exception as err:
         print(str(err))
         raise Exception
 
-    print('正在获取个人信息...')
+    # print('正在获取个人信息...')
+    print("Get your information.....")
     try:
         dk.get_info()
-        print('已成功获取个人信息')
+        # print('已成功获取个人信息')
+        print("Get information successfully!")
     except Exception as err:
-        print('获取信息失败，请手动打卡，更多信息: ' + str(err))
+        # print('获取信息失败，请手动打卡，更多信息: ' + str(err))
+        print("Get informaiton failed, more information: " + str(err))
         raise Exception
 
-    print('正在为您打卡')
+    # print('正在为您打卡')
+    print("Clock in......")
     try:
         res = dk.post()
         if str(res['e']) == '0':
-            print('已为您打卡成功！')
+            # print('已为您打卡成功！')
+            print("Success!")
         else:
-            print(res['m'])
+            # print(res['m'])
             if res['m'].find("已经") != -1: # 已经填报过了 不报错
+                print("Filled out today")
                 pass
             elif res['m'].find("验证码错误") != -1: # 验证码错误
-                print('再次尝试')
+                # print('再次尝试')
+                print("Verification code error")
+                print("Retry")
                 time.sleep(5)
                 main(username, password)
                 pass
             else:
                 raise Exception
     except Exception:
-        print('数据提交失败')
+        # print('数据提交失败')
+        print("Commit information failed!")
         raise Exception
 
 
