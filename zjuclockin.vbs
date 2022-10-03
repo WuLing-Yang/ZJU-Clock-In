@@ -1,1 +1,1 @@
-WScript.CreateObject("wscript.shell").Run "PowerShell -ExecutionPolicy Bypass -WindowStyle Hidden -Command ""D:\zjunet\ZJU-Clock-In\clockin.ps1 > %TEMP%\zjuclockin.log 2>&1""",0
+WScript.CreateObject("wscript.shell").Run "PowerShell -ExecutionPolicy Bypass -WindowStyle Hidden -Command ""cd D:\MyWorkspace\zjunet\ZJU-Clock-In; .\clockin.ps1 > .\zjuclockin.log 2>&1""",0
