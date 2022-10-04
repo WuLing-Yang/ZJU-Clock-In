@@ -23,6 +23,6 @@ for($x=1; $x -lt 5; $x=$x+1)
 	Write-Output "Waiting for 1 minute........"
 	Start-Sleep -Seconds 60
 }
-Wirte-Output "================="
+Write-Output "================="
 Write-Output "Powershell ${pid} exited !!!"
 kill ${pid}
