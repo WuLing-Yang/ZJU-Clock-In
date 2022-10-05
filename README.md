@@ -6,6 +6,6 @@
 
 更改 clockin.ps1，填入你的账号和密码
 
-开机自启动打卡六次，每次间隔一分钟，打卡过程记录在在`zjuclockin.log`
+开机自启动打卡四次，每次间隔一分钟，打卡过程记录在在`zjuclockin.log`
 
-自启动一个powershell，六次打卡完成后自动关闭，如果想提前关闭，看一下`zjuclockin.log`文件里pid，kill掉即可
+自启动一个powershell，四次打卡完成后自动关闭，如果想提前关闭，看一下`zjuclockin.log`文件里pid，kill掉即可
