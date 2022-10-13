@@ -29,26 +29,41 @@ class ClockIn(object):
     HEADERS = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36"
     }
-    
+    PROXIES = {
+        "http":"http://127.0.0.1:7890",
+        "https":"http://127.0.0.1:7890"
+    }
+
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
 
         requests.adapters.DEFAULT_RETRIES = 5
-        
+
         self.sess = requests.Session()
 #         self.ocr = ddddocr.DdddOcr()
 
-        self.sess.proxies = {"socks":"10.99.111.202:7890"}
         self.sess.keep_alive = False
 
     def login(self):
         """Login to ZJU platform"""
-        res = self.sess.get(self.LOGIN_URL, headers=self.HEADERS)
+        try:
+            res = self.sess.get(self.LOGIN_URL, headers=self.HEADERS, proxies=self.PROXIES)
+            print("proxy access 1/5 ...")
+        except:
+            res = self.sess.get(self.LOGIN_URL, headers=self.HEADERS)
+            print("no proxy access 1/5 ...")
         execution = re.search(
             'name="execution" value="(.*?)"', res.text).group(1)
-        res = self.sess.get(
-            url='https://zjuam.zju.edu.cn/cas/v2/getPubKey', headers=self.HEADERS).json()
+        try:
+            res = self.sess.get(
+                url='https://zjuam.zju.edu.cn/cas/v2/getPubKey', headers=self.HEADERS, proxies=self.PROXIES).json()
+            print("proxy access 2/5 ...")
+        except:
+            res = self.sess.get(
+                url='https://zjuam.zju.edu.cn/cas/v2/getPubKey', headers=self.HEADERS).json()
+            print("no proxy access 2/5 ...")
         n, e = res['modulus'], res['exponent']
         encrypt_password = self._rsa_encrypt(self.password, e, n)
 
@@ -58,7 +73,12 @@ class ClockIn(object):
             'execution': execution,
             '_eventId': 'submit'
         }
-        res = self.sess.post(url=self.LOGIN_URL, data=data, headers=self.HEADERS)
+        try:
+            res = self.sess.post(url=self.LOGIN_URL, data=data, headers=self.HEADERS, proxies=self.PROXIES)
+            print("proxy access 3/5 ...")
+        except:
+            res = self.sess.post(url=self.LOGIN_URL, data=data, headers=self.HEADERS)
+            print("no proxy access 3/5 ...")
 
         # check if login successfully
         if '统一身份认证' in res.content.decode():
@@ -68,7 +88,12 @@ class ClockIn(object):
 
     def post(self):
         """Post the hitcard info"""
-        res = self.sess.post(self.SAVE_URL, data=self.info, headers=self.HEADERS)
+        try:
+            res = self.sess.post(self.SAVE_URL, data=self.info, headers=self.HEADERS, proxies=self.PROXIES)
+            print("proxy access 5/5 ...")
+        except:
+            res = self.sess.post(self.SAVE_URL, data=self.info, headers=self.HEADERS)
+            print("no proxy access 5/5 ...")
         return json.loads(res.text)
 
     def get_date(self):
@@ -86,7 +111,12 @@ class ClockIn(object):
     def get_info(self, html=None):
         """Get hitcard info, which is the old info with updated new time."""
         if not html:
-            res = self.sess.get(self.BASE_URL, headers=self.HEADERS)
+            try:
+                res = self.sess.get(self.BASE_URL, headers=self.HEADERS, proxies=self.PROXIES)
+                print("proxy access 4/5 ...")
+            except:
+                res = self.sess.get(self.BASE_URL, headers=self.HEADERS)
+                print("no proxy access 4/5 ...")
             html = res.content.decode()
 
         try:
@@ -112,8 +142,8 @@ class ClockIn(object):
         new_info['number'] = number
         new_info["date"] = self.get_date()
         new_info["created"] = round(time.time())
-        new_info["address"] = "浙江省杭州市西湖区"
-        new_info["area"] = "浙江省 杭州市 西湖区"
+        new_info["address"] = "浙江省杭州市萧山区"
+        new_info["area"] = "浙江省 杭州市 萧山区"
         new_info["province"] = new_info["area"].split(' ')[0]
         new_info["city"] = new_info["area"].split(' ')[1]
         # form change
@@ -125,10 +155,10 @@ class ClockIn(object):
         new_info['jcqzrq'] = ""
         new_info['gwszdd'] = ""
         new_info['szgjcs'] = ""
-        
+
         # 2022.05.07
         # new_info['verifyCode'] = self.get_captcha() # 验证码识别（已取消）
-        
+
         # 2022.07.05
         new_info['internship'] = 3  # 今日是否进行实习或实践
 
